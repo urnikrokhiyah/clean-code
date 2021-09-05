@@ -9,5 +9,6 @@ import (
 func New() *echo.Echo {
 	e := echo.New()
 	e.GET("/users", controllers.GetAllUsersController)
+	e.GET("/users/:id", controllers.GetSingleUserController)
 	return e
 }
