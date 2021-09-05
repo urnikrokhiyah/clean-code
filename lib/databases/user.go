@@ -5,56 +5,70 @@ import (
 	"cleancode/models"
 )
 
-func GetAllUsers() (interface{}, error) {
+func GetAllUsers() (interface{}, int, error) {
 	users := []models.User{}
-	err := config.Db.Find(&users).Error
-	if err != nil {
-		return nil, err
+	result := config.Db.Find(&users)
+	if result.Error != nil {
+		return nil, 0, result.Error
 	}
 
-	return users, nil
+	if result.RowsAffected > 0 {
+		return users, 1, nil
+	}
+
+	return "user data not found", 0, nil
 }
 
-func GetSingleUser(userId int) (interface{}, error) {
+func GetSingleUser(userId int) (interface{}, int, error) {
 	user := models.User{}
-	err := config.Db.Find(&user, userId).Error
-	if err != nil {
-		return nil, err
+	result := config.Db.Find(&user, userId)
+	if result.Error != nil {
+		return nil, 0, result.Error
 	}
 
-	return user, nil
+	if result.RowsAffected > 0 {
+		return user, 1, nil
+	}
+
+	return "user data not found", 0, nil
 }
 
 func CreateNewUser(user *models.User) (interface{}, error) {
-	err := config.Db.Create(&user).Error
-	if err != nil {
-		return nil, err
+	result := config.Db.Create(&user)
+	if result.Error != nil {
+		return nil, result.Error
 	}
 
 	return user, nil
 }
 
-func DeleteUser(userId int) (interface{}, error) {
+func DeleteUser(userId int) (interface{}, int, error) {
 	user := models.User{}
-	err := config.Db.Delete(&user, userId).Error
-	if err != nil {
-		return nil, err
+	result := config.Db.Delete(&user, userId)
+	if result.Error != nil {
+		return nil, 0, result.Error
 	}
 
-	return "deleted", nil
+	if result.RowsAffected > 0 {
+		return "deleted", 1, nil
+	}
+	return "user data not found", 0, nil
 }
 
-func UpdateUser(userId int, newUser models.User) (interface{}, error) {
+func UpdateUser(userId int, newUser models.User) (interface{}, int, error) {
 	user := models.User{}
-	notFoundId := config.Db.Find(&user, userId).Error
-	if notFoundId != nil {
-		return nil, notFoundId
+	findResult := config.Db.Find(&user, userId)
+	if findResult.Error != nil {
+		return nil, 0, findResult.Error
 	}
 
-	err := config.Db.Model(&user).Updates(newUser).Error
-	if err != nil {
-		return nil, err
+	if findResult.RowsAffected > 0 {
+		updatedResult := config.Db.Model(&user).Updates(newUser)
+		if updatedResult.Error != nil {
+			return nil, 0, updatedResult.Error
+		}
+		return user, 1, nil
 	}
 
-	return user, nil
+	return "user data not found", 0, nil
 }

@@ -11,9 +11,13 @@ import (
 )
 
 func GetAllUsersController(c echo.Context) error {
-	users, err := databases.GetAllUsers()
+	users, rowAffected, err := databases.GetAllUsers()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, response.ErrorResponse("can't get all users"))
+	}
+
+	if rowAffected == 0 {
+		return c.JSON(http.StatusOK, response.ErrorResponse("failed to get all user data"))
 	}
 
 	return c.JSON(http.StatusOK, response.SuccessResponse("success get all users", users))
@@ -25,9 +29,13 @@ func GetSingleUserController(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, response.ErrorResponse("invalid user id"))
 	}
 
-	user, err := databases.GetSingleUser(userId)
+	user, rowAffected, err := databases.GetSingleUser(userId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, response.ErrorResponse("can't get single user"))
+	}
+
+	if rowAffected == 0 {
+		return c.JSON(http.StatusOK, response.ErrorResponse("failed to get single user"))
 	}
 
 	return c.JSON(http.StatusOK, response.SuccessResponse("success get single user", user))
@@ -50,9 +58,14 @@ func DeleteUserController(c echo.Context) error {
 	if errorId != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, response.ErrorResponse("invalid user id"))
 	}
-	message, err := databases.DeleteUser(userId)
+
+	message, rowAffected, err := databases.DeleteUser(userId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, response.ErrorResponse("can't delete user data"))
+	}
+
+	if rowAffected == 0 {
+		return c.JSON(http.StatusOK, response.ErrorResponse("failed to delete user data"))
 	}
 
 	return c.JSON(http.StatusOK, response.SuccessResponse("successfully deleted user data", message))
@@ -66,9 +79,14 @@ func UpdateUserController(c echo.Context) error {
 
 	newUser := models.User{}
 	c.Bind(&newUser)
-	updatedUser, err := databases.UpdateUser(userId, newUser)
+
+	updatedUser, rowAffected, err := databases.UpdateUser(userId, newUser)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, response.ErrorResponse("can't update user data"))
+	}
+
+	if rowAffected == 0 {
+		return c.JSON(http.StatusOK, response.ErrorResponse("failed to update user data"))
 	}
 
 	return c.JSON(http.StatusOK, response.SuccessResponse("successfully updated user data", updatedUser))

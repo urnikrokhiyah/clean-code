@@ -8,7 +8,9 @@ func SuccessResponse(message string, user interface{}) map[string]interface{} {
 	return response
 }
 
-func ErrorResponse(message string) string {
-	var response = message
+func ErrorResponse(message string) map[string]interface{} {
+	var response = map[string]interface{}{
+		"message": message,
+	}
 	return response
 }
