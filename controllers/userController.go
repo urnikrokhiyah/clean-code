@@ -44,3 +44,16 @@ func CreateUserControllers(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, response.SuccessResponse("success create new user", newUser))
 }
+
+func DeleteUserController(c echo.Context) error {
+	userId, errorId := strconv.Atoi(c.Param("id"))
+	if errorId != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, response.ErrorResponse("invalid user id"))
+	}
+	message, err := databases.DeleteUser(userId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, response.ErrorResponse("can't delete user data"))
+	}
+
+	return c.JSON(http.StatusOK, response.SuccessResponse("successfully deleted user data", message))
+}
