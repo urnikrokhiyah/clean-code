@@ -57,3 +57,19 @@ func DeleteUserController(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, response.SuccessResponse("successfully deleted user data", message))
 }
+
+func UpdateUserController(c echo.Context) error {
+	userId, errorId := strconv.Atoi(c.Param("id"))
+	if errorId != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, response.ErrorResponse("invalid user id"))
+	}
+
+	newUser := models.User{}
+	c.Bind(&newUser)
+	updatedUser, err := databases.UpdateUser(userId, newUser)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, response.ErrorResponse("can't update user data"))
+	}
+
+	return c.JSON(http.StatusOK, response.SuccessResponse("successfully updated user data", updatedUser))
+}
