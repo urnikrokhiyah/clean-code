@@ -10,7 +10,7 @@ type Book struct {
 }
 
 type OutputBook struct {
-	Title       string
-	Author      string
-	PublishedAt string
+	Title        string
+	Author       string
+	Published_at string
 }
