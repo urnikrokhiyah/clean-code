@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"cleancode/lib/databases"
+	"cleancode/models"
 	"cleancode/response"
 	"net/http"
 	"strconv"
@@ -30,4 +31,16 @@ func GetSingleUserController(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, response.SuccessResponse("success get single user", user))
+}
+
+func CreateUserControllers(c echo.Context) error {
+	var user models.User
+	c.Bind(&user)
+
+	newUser, err := databases.CreateNewUser(&user)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, response.ErrorResponse("can't create new user"))
+	}
+
+	return c.JSON(http.StatusOK, response.SuccessResponse("success create new user", newUser))
 }
