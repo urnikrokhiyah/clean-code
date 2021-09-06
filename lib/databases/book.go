@@ -7,13 +7,14 @@ import (
 
 func GetAllBooks() (interface{}, int, error) {
 	books := []models.Book{}
-	result := config.Db.Find(&books)
+	outputBook := []models.OutputBook{}
+	result := config.Db.Model(&books).Find(&outputBook)
 	if result.Error != nil {
 		return nil, 0, result.Error
 	}
 
 	if result.RowsAffected > 0 {
-		return books, 1, nil
+		return outputBook, 1, nil
 	}
 
 	return "Book not found", 0, nil
@@ -21,13 +22,14 @@ func GetAllBooks() (interface{}, int, error) {
 
 func GetSingleBook(bookId int) (interface{}, int, error) {
 	book := models.Book{}
-	result := config.Db.Find(&book, bookId)
+	bookOutput := models.OutputBook{}
+	result := config.Db.Model(&book).Find(&bookOutput, bookId)
 	if result.Error != nil {
 		return nil, 0, result.Error
 	}
 
 	if result.RowsAffected > 0 {
-		return book, 1, nil
+		return bookOutput, 1, nil
 	}
 
 	return "Book not found", 0, nil
@@ -39,7 +41,12 @@ func CreateNewBook(book *models.Book) (interface{}, error) {
 		return nil, result.Error
 	}
 
-	return book, nil
+	bookOutput := models.OutputBook{}
+	bookOutput.Author = book.Author
+	bookOutput.Title = book.Title
+	bookOutput.Published_at = book.Published_at
+
+	return bookOutput, nil
 }
 
 func DeleteBook(bookId int) (interface{}, int, error) {
@@ -67,7 +74,13 @@ func UpdateBook(bookId int, newBook models.Book) (interface{}, int, error) {
 		if updatedResult.Error != nil {
 			return nil, 0, updatedResult.Error
 		}
-		return book, 1, nil
+
+		bookOutput := models.OutputBook{}
+		bookOutput.Author = book.Author
+		bookOutput.Title = book.Title
+		bookOutput.Published_at = book.Published_at
+
+		return bookOutput, 1, nil
 	}
 
 	return "Book not found", 0, nil
