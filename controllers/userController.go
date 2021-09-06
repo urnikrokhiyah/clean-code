@@ -91,3 +91,15 @@ func UpdateUserController(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, response.SuccessResponse("successfully updated user data", updatedUser))
 }
+
+func LoginUserController(c echo.Context) error {
+	user := models.User{}
+	c.Bind(&user)
+
+	loggedUser, err := databases.LoginUsers(&user)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, response.ErrorResponse("failed to login"))
+	}
+
+	return c.JSON(http.StatusOK, response.SuccessResponse("success to login", loggedUser))
+}

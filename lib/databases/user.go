@@ -2,6 +2,7 @@ package databases
 
 import (
 	"cleancode/config"
+	"cleancode/middlewares"
 	"cleancode/models"
 )
 
@@ -71,4 +72,24 @@ func UpdateUser(userId int, newUser models.User) (interface{}, int, error) {
 	}
 
 	return "user data not found", 0, nil
+}
+
+func LoginUsers(user *models.User) (interface{}, error) {
+	result := config.Db.Where("email = ? AND password = ?", user.Email, user.Password).First(user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	var err error
+	user.Token, err = middlewares.CreateToken(int(user.ID))
+	if err != nil {
+		return nil, err
+	}
+
+	saveToken := config.Db.Save(&user)
+	if saveToken.Error != nil {
+		return nil, saveToken.Error
+	}
+
+	return user, nil
 }
