@@ -21,8 +21,17 @@ func New() *echo.Echo {
 	r.DELETE("/users/:id", controllers.DeleteUserController)
 	r.PUT("/users/:id", controllers.UpdateUserController)
 
+	// book controller with auth
+	r.POST("/books", controllers.CreateBookControllers)
+	r.PUT("/books/:id", controllers.UpdateBookController)
+	r.DELETE("/books/:id", controllers.DeleteBookController)
+
 	// user controller without auth
 	e.POST("/users", controllers.CreateUserControllers)
+
+	// book controller without auth
+	e.GET("/books", controllers.GetAllBooksController)
+	e.GET("/books/:id", controllers.GetSingleBookController)
 
 	return e
 }
