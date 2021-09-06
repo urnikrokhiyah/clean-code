@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"cleancode/lib/databases"
+	"cleancode/middlewares"
 	"cleancode/models"
 	"cleancode/response"
 	"net/http"
@@ -27,6 +28,11 @@ func GetSingleUserController(c echo.Context) error {
 	userId, errorId := strconv.Atoi(c.Param("id"))
 	if errorId != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, response.ErrorResponse("invalid user id"))
+	}
+
+	loggedUserId := middlewares.ExtractToken(c)
+	if loggedUserId != userId {
+		return c.JSON(http.StatusOK, response.ErrorResponse("can't access other accounts"))
 	}
 
 	user, rowAffected, err := databases.GetSingleUser(userId)
@@ -59,6 +65,11 @@ func DeleteUserController(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, response.ErrorResponse("invalid user id"))
 	}
 
+	loggedUserId := middlewares.ExtractToken(c)
+	if loggedUserId != userId {
+		return c.JSON(http.StatusOK, response.ErrorResponse("can't access other accounts"))
+	}
+
 	message, rowAffected, err := databases.DeleteUser(userId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, response.ErrorResponse("can't delete user data"))
@@ -75,6 +86,11 @@ func UpdateUserController(c echo.Context) error {
 	userId, errorId := strconv.Atoi(c.Param("id"))
 	if errorId != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, response.ErrorResponse("invalid user id"))
+	}
+
+	loggedUserId := middlewares.ExtractToken(c)
+	if loggedUserId != userId {
+		return c.JSON(http.StatusOK, response.ErrorResponse("can't access other accounts"))
 	}
 
 	newUser := models.User{}
