@@ -8,13 +8,15 @@ import (
 
 func GetAllUsers() (interface{}, int, error) {
 	users := []models.User{}
-	result := config.Db.Find(&users)
+	userOutput := []models.OutputUser{}
+
+	result := config.Db.Model(&users).Find(&userOutput)
 	if result.Error != nil {
 		return nil, 0, result.Error
 	}
 
 	if result.RowsAffected > 0 {
-		return users, 1, nil
+		return userOutput, 1, nil
 	}
 
 	return "user data not found", 0, nil
@@ -22,13 +24,15 @@ func GetAllUsers() (interface{}, int, error) {
 
 func GetSingleUser(userId int) (interface{}, int, error) {
 	user := models.User{}
-	result := config.Db.Find(&user, userId)
+	userOutput := models.OutputUser{}
+
+	result := config.Db.Model(&user).Find(&userOutput, userId)
 	if result.Error != nil {
 		return nil, 0, result.Error
 	}
 
 	if result.RowsAffected > 0 {
-		return user, 1, nil
+		return userOutput, 1, nil
 	}
 
 	return "user data not found", 0, nil
@@ -40,7 +44,11 @@ func CreateNewUser(user *models.User) (interface{}, error) {
 		return nil, result.Error
 	}
 
-	return user, nil
+	userOutput := models.OutputUser{}
+	userOutput.Name = user.Name
+	userOutput.Email = user.Email
+
+	return userOutput, nil
 }
 
 func DeleteUser(userId int) (interface{}, int, error) {
@@ -68,7 +76,12 @@ func UpdateUser(userId int, newUser models.User) (interface{}, int, error) {
 		if updatedResult.Error != nil {
 			return nil, 0, updatedResult.Error
 		}
-		return user, 1, nil
+
+		userOutput := models.OutputUser{}
+		userOutput.Name = user.Name
+		userOutput.Email = user.Email
+
+		return userOutput, 1, nil
 	}
 
 	return "user data not found", 0, nil

@@ -11,6 +11,6 @@ type User struct {
 }
 
 type OutputUser struct {
-	Username string
-	Email    string
+	Name  string
+	Email string
 }
